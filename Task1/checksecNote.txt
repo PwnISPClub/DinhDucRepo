@@ -1,0 +1,28 @@
+- checksec:
+Arch: amd64 Kiến trúc CPU được dùng để biên dịch chương trình — ở đây là 64-bit (x86_64).
+
+RELRO (Relocation Read-Only) là cơ chế bảo vệ bảng GOT khỏi ghi đè. Có 3 trạng thái:
+	*GOT (Global Offset Table): Bảng chứa địa chỉ thực của các hàm thư viện
+  -No RELRO: Không có bảo vệ gì
+  -Partial RELRO: 1 phần của bảng GOT được bảo vệ
+  -Full RELRO: Toàn bộ GOT bị làm read-only sau khởi tạo, chống overwrite GOT → chống ROP hoặc shell injection qua overwrite hàm libc.
+
+Stack: là giá trị ngẫu nhiên được đặt giữa buffer và return address để phát hiện buffer overflow
+  - Có canary: khó tấn công buffer overflow
+
+NX (No eXecute) : không cho phép thực thi trên vùng nhớ stack/heap, chống tấn công shellcode trong buffer, ngăn shellcode injection
+
+PIE: No PIE(0x400000) (Position Independent Executable):
+  - Nếu có PIE, mỗi lần chạy chương trình sẽ load ở địa chỉ ngẫu nhiên, giúp ASLR bảo vệ tốt hơn
+  - No PIE: code luôn load tại vị trí cố định (vd: 0x400000) -> dễ ROP
+ 
+SHSTK (SHadow STacK): cơ chế bảo vệ return address
+  - Một bản copy của return address được lưu ở vùng bảo vệ → nếu bị thay đổi bất hợp lệ, chương trình crash.
+  - Enable -> rất khó overwrite return address
+
+IBT (Indirect Branch Tracking): cơ chế ngăn tấn công control-flow hijacking
+  - Enable -> chống tấn công kiểu JOP/ROP
+
+Stripped:
+  Yes: Các symbol/hàm tên gốc đã bị xoá (khó reverse)
+  No: còn nguyên symbol -> dễ reverse, debug
